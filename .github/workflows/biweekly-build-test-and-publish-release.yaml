@@ -28,48 +28,63 @@ env:
   FIRST_RUN_DATE: 2024-09-20
 
 jobs:
-  biweekly-build-test-and-publish-release:
+  biweekly-create-tag:
     runs-on: ubuntu-latest
     outputs:
-      weekIndex: ${{ steps.biWeeklyTagCreate.outputs.weekIndex }}
+      week_index: ${{ steps.biweekly_tag_create.outputs.week_index }}
     steps:
-      - name: Checkout source code of the repository
+      - name: "Checkout source code of the repository"
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: "Create a new tag bi-weekly"
-        id: biWeeklyTagCreate
+        id: biweekly_tag_create
         run: |
-          currentDate=$(date +%Y-%m-%d)
+          current_date=$(date +%Y-%m-%d)
           start=$(date -d ${{ env.FIRST_RUN_DATE }} +%s)
-          end=$(date -d $currentDate +%s)
-          weekDiff=$(((end - start) / 60 / 60 / 24 / 7))
-          weekIndex=$((weekDiff % 2))
-          echo "weekIndex=$weekIndex" >> "$GITHUB_OUTPUT"
+          end=$(date -d $current_date +%s)
+          week_diff=$(((end - start) / 60 / 60 / 24 / 7))
+          week_index=$((week_diff % 2))
+          echo "week_index=$week_index" >> "$GITHUB_OUTPUT"
           echo "FIRST_RUN_DATE: ${{ env.FIRST_RUN_DATE }}" >> $GITHUB_STEP_SUMMARY
-          echo "currentDate: $currentDate" >> $GITHUB_STEP_SUMMARY
-          echo "weekDiff: $weekDiff" >> $GITHUB_STEP_SUMMARY
-          echo "weekIndex: $weekIndex" >> $GITHUB_STEP_SUMMARY
-          if [ $weekIndex -eq 0 ]; then
+          echo "current_date: $current_date" >> $GITHUB_STEP_SUMMARY
+          echo "week_diff: $week_diff" >> $GITHUB_STEP_SUMMARY
+          echo "week_index: $week_index" >> $GITHUB_STEP_SUMMARY
+          if [ $week_index -eq 0 ]; then
             echo "Second week -> starting action" >> $GITHUB_STEP_SUMMARY
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
-            currentTagValue=$(git describe --abbrev=0 --tags)
-            minor=$(echo $currentTagValue | cut -d '.' -f 2)
-            newTagValue=1.$(($minor+1)).0
-            git tag -a $newTagValue -m "Bi-weekly tagging with $newTagValue"
-            echo "Current tag value: $currentTagValue New tag value: $newTagValue" >> $GITHUB_STEP_SUMMARY
-            git push origin $newTagValue
+            current_tag_value=$(git describe --abbrev=0 --tags)
+            minor=$(echo $current_tag_value | cut -d '.' -f 2)
+            new_tag_value=1.$(($minor+1)).0
+            git tag -a $new_tag_value -m "Bi-weekly tagging with $new_tag_value"
+            echo "Current tag value: $current_tag_value New tag value: $new_tag_value" >> $GITHUB_STEP_SUMMARY
+            git push origin $new_tag_value
           else
             echo "First week -> ignoring action" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
 
-  action:
+  biweekly-create-patch:
     runs-on: ubuntu-latest
-    needs: [biweekly-build-test-and-publish-release]
-    if: ${{ needs.biweekly-build-test-and-publish-release.outputs.weekIndex == 0 }}
+    needs: biweekly-create-tag
+    if: ${{ needs.biweekly-build-test-and-publish-release.outputs.week_index == 0 }}
+    outputs:
+      patch: ${{ steps.create_patch.outputs.patch }}
+    steps:
+      - name: "Create patch"
+        id: create_patch
+        uses: ./.github/actions/create-patch
+
+  biweekly-build-test-and-publish-release:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, Linux-ARM-Runner]
+        arch: [x86_64, arm]
+    needs: [biweekly-create-tag, biweekly-create-patch]
+    if: ${{ needs.biweekly-create-tag.outputs.week_index == 0 }}
     steps:
       - name: "Checkout source code of the repository"
         uses: actions/checkout@v4
@@ -80,3 +95,5 @@ jobs:
         uses: ./.github/actions/build-test-and-publish-release
         with:
           pat-github-token: ${{ secrets.GITHUB_TOKEN }}
+          arch: ${{ matrix.arch }}
+          patch: $ {{ needs.biweekly-create-patch.outputs.patch }}

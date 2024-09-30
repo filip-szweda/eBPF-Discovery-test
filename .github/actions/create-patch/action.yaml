@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Run component tests"
-description: "Runs component tests"
+name: "Create patch"
+description: "Create patch required for versioning"
 
 runs:
   using: "composite"
   steps:
-    - name: "Install requirements"
+    - name: "Create patch"
       shell: bash
-      run: |
-        python -m venv testvenv
-        source testvenv/bin/activate
-        pip install -r "${{ env.COMPONENT_TESTING_PATH }}/requirements.txt"
-    - name: "Create logs directory"
-      shell: bash
-      run: mkdir logs
-    - name: "Run tests"
-      shell: bash
-      run: sudo testvenv/bin/pytest ${{ env.COMPONENT_TESTING_PATH }} -s -v --discovery_path="${{ env.DISCOVERY_BIN_PATH }}" --log_dir="${{ github.workspace }}/logs"
+      run: echo patch="$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
