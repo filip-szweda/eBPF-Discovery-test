@@ -22,8 +22,8 @@ inputs:
   arch:
     description: "Architecture, x86_64 or arm"
     required: true
-  patch:
-    description: "Timestamp used as a version patch"
+  timestamp:
+    description: "Timestamp in format %Y%m%d-%H%M%S used in versioning"
     required: true
 
 runs:
@@ -38,7 +38,7 @@ runs:
       uses: ./.github/actions/set-environment-variables
       with:
         build-type: Release
-        patch: ${{ inputs.patch }}
+        timestamp: ${{ inputs.timestamp }}
 
     - name: "Build docker image"
       uses: ./.github/actions/build-docker-image

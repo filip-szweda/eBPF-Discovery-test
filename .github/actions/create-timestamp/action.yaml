@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Create patch"
-description: "Create patch required for versioning"
+name: "Create timestamp"
+description: "Create timestamp required for versioning"
 
 runs:
   using: "composite"
   steps:
-    - name: "Create patch"
+    - name: "Create timestamp"
       shell: bash
-      run: echo patch="$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+      run: echo timestamp="$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"

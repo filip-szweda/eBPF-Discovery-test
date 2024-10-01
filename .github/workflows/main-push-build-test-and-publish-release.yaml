@@ -21,17 +21,17 @@ on:
       - main
 
 jobs:
-  main-create-patch:
+  main-create-timestamp:
     runs-on: ubuntu-latest
     outputs:
-      patch: ${{ steps.create_patch.outputs.patch }}
+      timestamp: ${{ steps.create_timestamp.outputs.timestamp }}
     steps:
       - name: "Checkout source code of the repository"
         uses: actions/checkout@v4
 
-      - name: "Create patch"
-        id: create_patch
-        uses: ./.github/actions/create-patch
+      - name: "Create timestamp"
+        id: create_timestamp
+        uses: ./.github/actions/create-timestamp
 
   main-push-build-test-and-publish-release:
     runs-on: ${{ matrix.runner }}
@@ -39,7 +39,7 @@ jobs:
       matrix:
         runner: [ubuntu-latest, Linux-ARM-Runner]
         arch: [x86_64, arm]
-    needs: main-create-patch
+    needs: main-create-timestamp
     steps:
       - name: "Checkout source code of the repository"
         uses: actions/checkout@v4
@@ -66,4 +66,4 @@ jobs:
         with:
           pat-github-token: ${{ secrets.GITHUB_TOKEN }}
           arch: ${{ matrix.arch }}
-          patch: $ {{ needs.main-create-patch.outputs.patch }}
+          timestamp: $ {{ needs.main-create-timestamp.outputs.timestamp }}
