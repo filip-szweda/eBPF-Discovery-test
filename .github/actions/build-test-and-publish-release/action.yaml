@@ -88,5 +88,6 @@ runs:
     - name: "Publish zip to GitHub OCI registry"
       shell: bash
       run: |
+        echo ${{ env.ARTIFACT_VERSION }}
         cd ${{ env.ARTIFACT_PATH }}
         echo ${{ inputs.pat-github-token }} | docker run --rm -i -v $(pwd):/workspace ghcr.io/oras-project/oras:v1.0.1 push -u ${{ github.actor }} --password-stdin ${{ env.GITHUB_OCI_REGISTRY_ADDRESS }}/${{ env.LOWERCASE_REPOSITORY_NAME }}-linux-${{ inputs.arch }}:${{ env.ARTIFACT_VERSION }},latest ${{ env.ARTIFACT_VERSION }}.zip
