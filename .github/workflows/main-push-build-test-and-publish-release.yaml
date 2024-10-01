@@ -17,8 +17,6 @@ name: "Main push build, test and publish Release"
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   main-create-timestamp:
