@@ -41,7 +41,10 @@ runs:
         fi
         printf "PROJECT_VERSION=%s\n" "${newestVersion}" >> $GITHUB_ENV
         
-        printf "ARTIFACT_VERSION=%s\n" "${newestVersion}.${{ inputs.timestamp }}" >> $GITHUB_ENV
+        echo ${{ inputs.timestamp }}
+        echo "${{ inputs.timestamp }}"
+        artifactVersion="${newestVersion}.${{ inputs.timestamp }}"
+        printf "ARTIFACT_VERSION=%s\n" "${artifactVersion}" >> $GITHUB_ENV
         
         buildPath="${{ github.workspace }}/cmake-build-${buildType,,}"
         printf "BUILD_PATH=%s\n" "${buildPath}" >> $GITHUB_ENV
@@ -61,3 +64,7 @@ runs:
         
         githubOCIRegistryAddress=ghcr.io/${{ github.repository_owner }}/"${lowercaseRepositoryName}"
         printf "GITHUB_OCI_REGISTRY_ADDRESS=%s\n" "${githubOCIRegistryAddress}" >> $GITHUB_ENV
+
+    - name: "Debug"
+      shell: bash
+      run: echo ${{ env.ARTIFACT_VERSION }}
