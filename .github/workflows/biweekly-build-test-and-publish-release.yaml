@@ -70,8 +70,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: biweekly-create-tag
     if: ${{ needs.biweekly-build-test-and-publish-release.outputs.week_index == 0 }}
-    outputs:
-      timestamp: ${{ steps.create_timestamp.outputs.timestamp }}
     steps:
       - name: "Create timestamp"
         id: create_timestamp
@@ -96,4 +94,3 @@ jobs:
         with:
           pat-github-token: ${{ secrets.GITHUB_TOKEN }}
           arch: ${{ matrix.arch }}
-          timestamp: $ {{ needs.biweekly-create-timestamp.outputs.timestamp }}

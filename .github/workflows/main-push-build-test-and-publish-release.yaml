@@ -21,8 +21,6 @@ on:
 jobs:
   main-create-timestamp:
     runs-on: ubuntu-latest
-    outputs:
-      timestamp: ${{ steps.create_timestamp.outputs.timestamp }}
     steps:
       - name: "Checkout source code of the repository"
         uses: actions/checkout@v4
@@ -64,4 +62,3 @@ jobs:
         with:
           pat-github-token: ${{ secrets.GITHUB_TOKEN }}
           arch: ${{ matrix.arch }}
-          timestamp: $ {{ needs.main-create-timestamp.outputs.timestamp }}

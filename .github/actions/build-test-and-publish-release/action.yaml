@@ -22,9 +22,6 @@ inputs:
   arch:
     description: "Architecture, x86_64 or arm"
     required: true
-  timestamp:
-    description: "Timestamp in format %Y%m%d-%H%M%S used in versioning"
-    required: true
 
 runs:
   using: "composite"
@@ -34,17 +31,10 @@ runs:
       with:
         fetch-depth: 0
 
-    - name: "Debug"
-      shell: bash
-      run: |
-        print ${{ inputs.timestamp }}
-        print "${{ inputs.timestamp }}"
-
     - name: "Set environment variables"
       uses: ./.github/actions/set-environment-variables
       with:
         build-type: Release
-        timestamp: ${{ inputs.timestamp }}
 
     - name: "Build docker image"
       uses: ./.github/actions/build-docker-image

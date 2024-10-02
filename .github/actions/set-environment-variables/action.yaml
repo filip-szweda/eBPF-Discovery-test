@@ -19,9 +19,6 @@ inputs:
   build-type:
     description: "Release or Debug"
     required: true
-  timestamp:
-    description: "Timestamp in format %Y%m%d-%H%M%S used in versioning"
-    required: true
 
 runs:
   using: "composite"
@@ -41,7 +38,7 @@ runs:
         fi
         printf "PROJECT_VERSION=%s\n" "${newestVersion}" >> $GITHUB_ENV
 
-        printf "ARTIFACT_VERSION=%s\n" "${newestVersion}.${{ inputs.timestamp }}" >> $GITHUB_ENV
+        printf "ARTIFACT_VERSION=%s\n" "${newestVersion}.${{ env.TIMESTAMP }}" >> $GITHUB_ENV
         
         buildPath="${{ github.workspace }}/cmake-build-${buildType,,}"
         printf "BUILD_PATH=%s\n" "${buildPath}" >> $GITHUB_ENV
