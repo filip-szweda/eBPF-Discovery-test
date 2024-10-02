@@ -34,6 +34,12 @@ runs:
       with:
         fetch-depth: 0
 
+    - name: "Debug"
+      shell: bash
+      run: |
+        print ${{ inputs.timestamp }}
+        print "${{ inputs.timestamp }}"
+
     - name: "Set environment variables"
       uses: ./.github/actions/set-environment-variables
       with:
